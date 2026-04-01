@@ -1,0 +1,77 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install flet
+        pip install pyinstaller
+        pip install -r requirements.txt
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Install Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+    
+    - name: Create APK
+      run: |
+        # عرض الملفات قبل البناء
+        echo "=== Files before building ==="
+        ls -la
+        
+        # محاولة بناء APK
+        echo "=== Building APK ==="
+        flet build apk || flet pack main.py
+        
+        # البحث عن APK
+        echo "=== Searching for APK files ==="
+        find . -name "*.apk" -type f
+        
+        # نقل APK إلى dist
+        mkdir -p dist
+        find . -name "*.apk" -exec cp {} dist/ \;
+        
+        # عرض النتيجة
+        echo "=== Contents of dist ==="
+        ls -la dist/
+        
+        # التأكد من وجود APK
+        if [ -z "$(find dist -name '*.apk' -type f)" ]; then
+          echo "❌ ERROR: No APK file was created!"
+          echo "Current directory structure:"
+          find . -type d
+          exit 1
+        fi
+        
+        echo "✅ APK created successfully!"
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-clock-app
+        path: dist/*.apk
+        if-no-files-found: error
