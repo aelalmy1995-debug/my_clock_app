@@ -1,0 +1,14 @@
+name: my_clock_app
+version: 1.0.0
+description: تطبيق ساعة رقمية
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flet: ^0.24.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/fonts/
