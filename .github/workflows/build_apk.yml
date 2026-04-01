@@ -38,11 +38,10 @@ jobs:
     
     - name: Create APK
       run: |
-        flet pack main.py \
-          --name "My Clock" \
-          --product-name "my_clock" \
-          --build-version 1.0.0 \
-          --output-dir dist
+       mkdir -p dist 
+       flet pack main.py 
+       find . -name "*.apk" -exec mv {} dist/ \; 
+       ls -la dist/
     
     - name: Upload APK
       uses: actions/upload-artifact@v4  # ✅ تم التحديث إلى v4
